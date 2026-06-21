@@ -11,7 +11,7 @@ function App() {
 
   useEffect(() => {
     // Fetch data from your Spring Boot API endpoint
-    fetch('/api/hello')
+    fetch('http://localhost:8080/api/hello')
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
