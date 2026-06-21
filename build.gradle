@@ -1,24 +1,25 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '4.1.0'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '4.1.0'
+    id 'io.spring.dependency-management' version '1.1.7'
+    // 1. Add the official Node Gradle integration plugin
+    id 'com.github.node-gradle.node' version '7.1.0'
 }
 
 group = 'com.mohits'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-    // CHANGE THIS LINE: add "-web" to the starter
     implementation 'org.springframework.boot:spring-boot-starter-web' 
     
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -26,5 +27,29 @@ dependencies {
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
+
+// --- Node.js & React Build Automation Configuration ---
+
+node {
+    // Automatically downloads and provisions isolated Node binaries
+    download = true
+    version = '22.14.0' 
+    
+    // Points directly to where your package.json is managed
+    nodeProjectDir = file("${projectDir}/frontend")
+}
+
+// Create a structural wrapper task for running your custom production vite build step
+tasks.register('viteBuild', NpmTask) {
+    description = 'Compiles production frontend using Vite'
+    
+    // Forces npm install (npmInstall task provided natively by the plugin) to run first
+    dependsOn npmInstall 
+    
+    args = ['run', 'build']
+}
+
+// Chains the process so static files populate inside resources before Spring Boot maps its assets
+processResources.dependsOn viteBuild

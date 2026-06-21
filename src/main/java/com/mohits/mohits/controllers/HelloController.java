@@ -9,7 +9,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(originPatterns = "http://localhost:*") // Allow React to talk to this backend
+@CrossOrigin(origins = "http://localhost:*") // Allow React to talk to this backend
 public class HelloController {
 
     @GetMapping("/hello")
