@@ -1,4 +1,4 @@
-package com.mohits.mohits;
+package com.mohits.mohits.controllers;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
