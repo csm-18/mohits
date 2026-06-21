@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '4.1.0'
     id 'io.spring.dependency-management' version '1.1.7'
-    // 1. Add the official Node Gradle integration plugin
     id 'com.github.node-gradle.node' version '7.1.0'
 }
 
@@ -33,23 +32,51 @@ tasks.named('test') {
 // --- Node.js & React Build Automation Configuration ---
 
 node {
-    // Automatically downloads and provisions isolated Node binaries
     download = true
     version = '22.14.0' 
-    
-    // Points directly to where your package.json is managed
     nodeProjectDir = file("${projectDir}/frontend")
 }
 
-// Create a structural wrapper task for running your custom production vite build step
 tasks.register('viteBuild', NpmTask) {
     description = 'Compiles production frontend using Vite'
-    
-    // Forces npm install (npmInstall task provided natively by the plugin) to run first
     dependsOn npmInstall 
-    
     args = ['run', 'build']
 }
 
-// Chains the process so static files populate inside resources before Spring Boot maps its assets
 processResources.dependsOn viteBuild
+
+// --- Custom Execution and Status Logging ---
+
+tasks.named('build') {
+    doLast {
+        println "\n" + "="*60
+        println " 🎉 PRODUCTION BUILD COMPLETE"
+        println "="*60
+        println " Your React frontend has been successfully compiled into the Spring Boot JAR assets."
+        println " Run your unified app locally using:"
+        println "   👉 java -jar build/libs/${project.name}-${project.version}.jar"
+        println "\n 🌐 Deployment URL Mappings (When Running):"
+        println "   - Frontend UI Base:  http://localhost:8080/"
+        println "   - Backend API Base:  http://localhost:8080/api"
+        println "   - Video Endpoint:    http://localhost:8080/api/videos (via VideoController)"
+        println "="*60 + "\n"
+    }
+}
+
+tasks.named('bootRun') {
+    doFirst {
+        println "\n" + "="*60
+        println " 🚀 STARTING INTEGRATED APPLICATION (bootRun)"
+        println "="*60
+        println " ⚡ Local Server Environment Configuration:"
+        println "   - Unified System URL: http://localhost:8080"
+        println "     └─ Accessing '/' loads your React Client Interface."
+        println "   - Backend API Entry:  http://localhost:8080/api"
+        println "     └─ Handles your underlying Java RestControllers."
+        println ""
+        println " 💡 Pro-Tip for Daily Frontend UI Changes:"
+        println "    If you're making fast CSS or UI logic edits, run 'bun run dev' or 'npm run dev'"
+        println "    directly inside your '/frontend' folder to leverage Vite's instant Hot Reloading."
+        println "="*60 + "\n"
+    }
+}
